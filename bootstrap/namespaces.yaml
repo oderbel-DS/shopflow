@@ -1,0 +1,26 @@
+# namespaces.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: dev
+  labels: { env: dev, team: shopflow }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: staging
+  labels: { env: staging, team: shopflow }
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: production
+  labels: { env: production, team: shopflow }
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: monitoring }
+---
+apiVersion: v1
+kind: Namespace
+metadata: { name: argocd }
