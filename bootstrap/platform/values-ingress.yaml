@@ -1,0 +1,11 @@
+controller:
+  replicaCount: 2 # 2 copies du portier (si l'une tombe, l'autre tient)
+  service:
+    type: LoadBalancer # demande une IP publique à Google (le répartiteur)
+  metrics:
+    enabled: true # expose des métriques...
+    serviceMonitor:
+      enabled: true # ...pour que Prometheus les collecte (Partie 10)
+  resources: # réservation de ressources (utile au scheduling)
+    requests: { cpu: 100m, memory: 128Mi } # minimum garanti
+    limits: { cpu: 500m, memory: 512Mi } # plafond
