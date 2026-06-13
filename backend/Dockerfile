@@ -1,6 +1,6 @@
 # ---- Stage 1 : l'atelier (on installe les dépendances) ----
 FROM python:3.11-slim AS builder      
-WORKDIR /app                          # dossier de travail dans l'image
+WORKDIR /app                          # dossier de travail dans image
 RUN python -m venv /opt/venv          # cree un environnement Python isole
 ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .               
