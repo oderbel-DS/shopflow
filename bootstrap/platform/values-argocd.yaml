@@ -1,0 +1,10 @@
+configs:
+  params:
+    server.insecure: true # TLS géré par l'Ingress en amont
+server:
+  service: { type: ClusterIP }
+  metrics: { enabled: true, serviceMonitor: { enabled: true } }
+controller:
+  metrics: { enabled: true, serviceMonitor: { enabled: true } }
+repoServer:
+  metrics: { enabled: true, serviceMonitor: { enabled: true } }
