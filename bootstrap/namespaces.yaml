@@ -2,19 +2,19 @@
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: dev
+  name: shopflow-dev
   labels: { env: dev, team: shopflow }
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: staging
+  name: shopflow-staging
   labels: { env: staging, team: shopflow }
 ---
 apiVersion: v1
 kind: Namespace
 metadata:
-  name: production
+  name: shopflow-prod
   labels: { env: production, team: shopflow }
 ---
 apiVersion: v1
