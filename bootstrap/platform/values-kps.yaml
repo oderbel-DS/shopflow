@@ -1,0 +1,13 @@
+# values-kps.yaml
+grafana:
+  adminPassword: "ChangeMe-en-prod" # à mettre en Secret en prod
+  service: { type: ClusterIP } # exposé via Ingress plus tard
+prometheus:
+  prometheusSpec:
+    retention: 7d
+    # Découvre AUSSI les ServiceMonitors hors du chart (nos apps)
+    serviceMonitorSelectorNilUsesHelmValues: false
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits: { memory: 1Gi }
+alertmanager:
