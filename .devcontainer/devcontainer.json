@@ -1,0 +1,21 @@
+{
+  "name": "shopflow-k8s",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "remoteUser": "vscode",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-kubernetes-tools.vscode-kubernetes-tools",
+        "redhat.vscode-yaml",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "yaml.format.enable": true,
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "postCreateCommand": "kubectl version --client --output=yaml || true; helm version || true; gcloud version || true"
+}
