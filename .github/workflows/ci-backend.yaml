@@ -6,8 +6,8 @@ on:
     paths: [ "backend/**" ]
  
 env:
-  REGION: europe-west1
-  REPO: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/shopflow
+  REGION: northamerica-northeast2
+  REPO: northamerica-northeast2-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/shopflow
  
 jobs:
   test:
@@ -54,7 +54,7 @@ jobs:
       - name: Checkout depot GitOps
         uses: actions/checkout@v4
         with:
-          repository: mon-org/shopflow-gitops
+          repository: oderbel-DS/shopflow-gitops
           token: ${{ secrets.GITOPS_PAT }}
       - name: Bump tag image (staging)
         run: |
