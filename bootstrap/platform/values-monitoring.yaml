@@ -1,0 +1,50 @@
+# values-monitoring.yaml — réglages du Chart kube-prometheus-stack
+# (à ranger dans bootstrap/platform/)
+
+# ── Grafana : les tableaux de bord ───────────────────────────────
+grafana:
+  adminPassword: "ChangeMe" # mot de passe admin (à mettre en Secret en vrai)
+  service:
+    type: ClusterIP # on y accède par port-forward, pas exposé sur Internet
+  defaultDashboardsTimezone: browser
+  resources:
+    requests: { cpu: 50m, memory: 128Mi }
+
+# ── Prometheus : la collecte des mesures ─────────────────────────
+prometheus:
+  prometheusSpec:
+    retention: 7d # garde 7 jours d'historique de mesures
+    # IMPORTANT : autorise Prometheus à découvrir AUSSI les ServiceMonitor
+    # de NOS applications (pas seulement ceux du Chart). Sans ça, les
+    # métriques de ShopFlow n'apparaîtraient pas (voir Partie 10).
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+    resources:
+      requests: { cpu: 200m, memory: 512Mi }
+      limits: { memory: 1Gi }
+    # (option) disque persistant pour ne pas perdre les mesures au redémarrage :
+    # storageSpec:
+    #   volumeClaimTemplate:
+    #     spec:
+    #       accessModes: ["ReadWriteOnce"]
+    #       resources: { requests: { storage: 10Gi } }
+
+# ── Alertmanager : l'envoi des alertes ───────────────────────────
+alertmanager:
+  enabled: true
+  alertmanagerSpec:
+    resources:
+      requests: { cpu: 25m, memory: 64Mi }
+
+# ── Spécial GKE : désactiver les cibles non accessibles ──────────
+# Sur GKE, Google gère le "cerveau" du cluster : ces composants ne sont
+# pas joignables. On les désactive pour éviter de fausses alertes "target down".
+kubeControllerManager:
+  enabled: false
+kubeScheduler:
+  enabled: false
+kubeEtcd:
+  enabled: false
+kubeProxy:
+  enabled: false
