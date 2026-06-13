@@ -1,0 +1,68 @@
+# .github/workflows/ci.yaml
+name: ci-backend
+on:
+  push:
+    branches: [ main ]
+    paths: [ "backend/**" ]
+ 
+env:
+  REGION: europe-west1
+  REPO: europe-west1-docker.pkg.dev/${{ secrets.GCP_PROJECT }}/shopflow
+ 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: { python-version: "3.11" }
+      - run: pip install -r backend/requirements.txt ruff pytest
+      - name: Lint
+        run: ruff check backend/
+      - name: Tests
+        run: pytest backend/tests -q
+    
+  build-push:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: vars
+        run: echo "sha=sha-$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: Auth GCP
+        uses: google-github-actions/auth@v2
+        with: { credentials_json: "${{ secrets.GCP_SA_KEY }}" }
+      - name: Docker auth
+        run: gcloud auth configure-docker $REGION-docker.pkg.dev --quiet
+      - name: Build
+        run: docker build -t $REPO/backend:${{ steps.vars.outputs.sha }} ./backend
+      - name: Scan (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.REPO }}/backend:${{ steps.vars.outputs.sha }}
+          severity: CRITICAL,HIGH
+          exit-code: "1"        # echoue si CVE critique/haute
+      - name: Push
+        run: docker push $REPO/backend:${{ steps.vars.outputs.sha }}
+    outputs:
+      sha: ${{ steps.vars.outputs.sha }}
+ 
+  bump-gitops:
+    needs: build-push
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout depot GitOps
+        uses: actions/checkout@v4
+        with:
+          repository: mon-org/shopflow-gitops
+          token: ${{ secrets.GITOPS_PAT }}
+      - name: Bump tag image (staging)
+        run: |
+          sed -i "s|tag:.*|tag: ${{ needs.build-push.outputs.sha }}|" \
+            envs/staging/values-staging.yaml
+      - name: Commit & push
+        run: |
+          git config user.name ci-bot
+          git config user.email ci-bot@shopflow
+          git commit -am "deploy(staging): ${{ needs.build-push.outputs.sha }}"
+          git push
