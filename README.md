@@ -1,1 +1,1 @@
-# ShopFlow — Projet fil rouge K8s
+# ShopFlow — Projet de migration K8s
