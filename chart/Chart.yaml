@@ -1,0 +1,7 @@
+# Chart.yaml
+apiVersion: v2
+name: shopflow
+description: ShopFlow - API FastAPI
+type: application
+version: 0.1.0 # version du chart
+appVersion: "1.0.0" # version de l'application par defaut

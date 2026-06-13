@@ -1,0 +1,33 @@
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "shopflow.fullname" . }}
+  labels: {{- include "shopflow.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "shopflow.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels: {{- include "shopflow.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: backend
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports: [ { containerPort: {{ .Values.service.targetPort }} } ]
+          envFrom:
+            - configMapRef: { name: {{ include "shopflow.fullname" . }}-config }
+            - secretRef:    { name: {{ include "shopflow.fullname" . }}-secret }
+          livenessProbe:
+            httpGet: { path: /healthz, port: {{ .Values.service.targetPort }} }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /readyz, port: {{ .Values.service.targetPort }} }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources: {{- toYaml .Values.resources | nindent 12 }}
