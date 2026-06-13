@@ -1717,6 +1717,71 @@ diff /tmp/current.yaml /tmp/expected.yaml
 
 ---
 
+## 🧹 Étape 8 : Nettoyage du projet
+
+### 8.1 Script officiel de nettoyage
+
+Le script de nettoyage est disponible dans le repo applicatif à cet emplacement :
+
+- `shopflow/scripts/cleanup-script.sh`
+
+**Rôle du script :**
+- Génère un backup cluster (`kubectl get all -A -o yaml`)
+- Supprime les pods `Failed` et `Succeeded`
+- Supprime les jobs terminés (`shopflow-staging`, `shopflow-prod`)
+- Nettoie les anciens tags d'images dans Artifact Registry (backend/frontend)
+- Lance un nettoyage Git local sur `shopflow-gitops` si présent
+
+### 8.2 Exécution du script
+
+```bash
+cd shopflow
+chmod +x scripts/cleanup-script.sh
+./scripts/cleanup-script.sh
+```
+
+### 8.3 Mode simulation (recommandé avant production)
+
+```bash
+cd shopflow
+DRY_RUN=true ./scripts/cleanup-script.sh
+```
+
+### 8.4 Paramètres utiles
+
+```bash
+# Garder 10 tags au lieu de 15
+KEEP_TAGS=10 ./scripts/cleanup-script.sh
+
+# Forcer un contexte kubectl spécifique
+KUBECONFIG_CONTEXT=gke_shopflow-499020_northamerica-northeast2_shopflow-cluster \
+./scripts/cleanup-script.sh
+```
+
+### 8.5 Vérifications après nettoyage
+
+```bash
+# Vérifier les pods
+kubectl get pods -A
+
+# Vérifier les jobs
+kubectl get jobs -n shopflow-staging
+kubectl get jobs -n shopflow-prod
+
+# Vérifier les tags restants
+gcloud artifacts docker tags list \
+  northamerica-northeast2-docker.pkg.dev/shopflow-499020/shopflow/backend \
+  --sort-by=~UPDATE_TIME --limit=20
+```
+
+### 8.6 Notes de sécurité
+
+- Lancer d'abord en `DRY_RUN=true` sur un environnement sensible
+- Ne pas exécuter pendant une fenêtre de forte charge
+- Conserver les backups générés dans `shopflow/backups/`
+
+---
+
 ## 🔍 Références rapides et ressources
 
 ### Liens utiles
