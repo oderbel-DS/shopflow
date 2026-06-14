@@ -987,6 +987,51 @@ kubectl get networkpolicy -n shopflow-staging
 kubectl describe networkpolicy -n shopflow-staging
 ```
 
+### 4.7.1 Test en Cloud Shell: comparer staging et prod
+
+**Objectif:** Vérifier localement les deux environnements sans modifier le cluster.
+
+Avec la configuration actuelle, l'Ingress utilise un hostname différent pour chaque environnement et un chemin dédié :
+- staging : `shopflow-staging.example.com` + `/staging`
+- prod : `shopflow.example.com` + `/prod`
+
+```bash
+# Récupérer l'IP publique de l'Ingress controller
+INGRESS_IP=$(kubectl get svc -n ingress-nginx ingress-nginx-controller \
+  -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+echo "$INGRESS_IP"
+
+# Tester staging via Host header et path dédié
+curl -i -H "Host: shopflow-staging.example.com" http://$INGRESS_IP/staging/
+curl -i -H "Host: shopflow-staging.example.com" http://$INGRESS_IP/staging/healthz
+
+# Tester prod via Host header et path dédié
+curl -i -H "Host: shopflow.example.com" http://$INGRESS_IP/prod/
+curl -i -H "Host: shopflow.example.com" http://$INGRESS_IP/prod/healthz
+```
+
+### 4.7.2 Test en local avec port-forward
+
+**Objectif:** Comparer staging et prod depuis Cloud Shell ou un terminal local sans dépendre de l'IP externe.
+
+```bash
+# Ouvrir deux tunnels dans deux terminaux séparés
+kubectl -n shopflow-staging port-forward svc/shopflow-staging-shopflow 8081:80
+kubectl -n shopflow-prod port-forward svc/shopflow-prod-shopflow 8082:80
+
+# Tester les deux environnements en local
+curl -i http://localhost:8081/
+curl -i http://localhost:8081/healthz
+
+curl -i http://localhost:8082/
+curl -i http://localhost:8082/healthz
+```
+
+**Lecture des différences attendues:**
+- `shopflow-staging` doit refléter les paramètres staging : `replicaCount: 2`, `LOG_LEVEL: info`
+- `shopflow-prod` doit refléter les paramètres prod : `replicaCount: 4`, `LOG_LEVEL: warning`
+- Si l'application affiche l'environnement, la réponse HTTP ou les logs doivent différer entre staging et prod
+
 ### 4.8 Helm operations
 
 **Objectif:** Inspecter et gérer les Helm releases
