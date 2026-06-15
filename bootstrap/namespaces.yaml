@@ -15,12 +15,16 @@ apiVersion: v1
 kind: Namespace
 metadata:
   name: shopflow-prod
-  labels: { env: production, team: shopflow }
+  labels: { env: prod, team: shopflow }
 ---
 apiVersion: v1
 kind: Namespace
-metadata: { name: monitoring }
+metadata:
+  name: monitoring
+  labels: { team: platform, purpose: monitoring }
 ---
 apiVersion: v1
 kind: Namespace
-metadata: { name: argocd }
+metadata:
+  name: argocd
+  labels: { team: platform, purpose: gitops }

@@ -1,7 +1,7 @@
 # quota-production.yaml
 apiVersion: v1
 kind: ResourceQuota
-metadata: { name: prod-quota, namespace: production }
+metadata: { name: prod-quota, namespace: shopflow-prod }
 spec:
   hard:
     requests.cpu: "4"
@@ -12,7 +12,7 @@ spec:
 ---
 apiVersion: v1
 kind: LimitRange
-metadata: { name: prod-defaults, namespace: production }
+metadata: { name: prod-defaults, namespace: shopflow-prod }
 spec:
   limits:
     - type: Container
