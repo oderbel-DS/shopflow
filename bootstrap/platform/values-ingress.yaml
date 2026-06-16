@@ -5,7 +5,7 @@ controller:
   metrics:
     enabled: true # expose des métriques...
     serviceMonitor:
-      enabled: true # ...pour que Prometheus les collecte (Partie 10)
+      enabled: false # ...a activer apres installation des CRDs monitoring
   resources: # réservation de ressources (utile au scheduling)
     requests: { cpu: 100m, memory: 128Mi } # minimum garanti
     limits: { cpu: 500m, memory: 512Mi } # plafond
