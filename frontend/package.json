@@ -1,0 +1,8 @@
+{
+  "name": "shopflow-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "mkdir -p dist && if [ -f src/index.html ]; then cp src/index.html dist/index.html; else printf '%s\\n' '<!doctype html><html><head><meta charset=\"utf-8\"><title>ShopFlow Frontend</title></head><body><h1>ShopFlow frontend</h1></body></html>' > dist/index.html; fi"
+  }
+}
